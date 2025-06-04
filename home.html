@@ -23,9 +23,12 @@
                     <th>Nom</th>
                     <th>Email</th>
                     <th>Tel</th>
+                    <th>Genre</th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+
+            </tbody>
         </table>
     </main>
 
@@ -37,7 +40,49 @@
         // Sort user by age
         // Search user by name
         // Add users instead of replacing them.
+
+        const tbody = document.querySelector('#tbl-users tbody');
+        const btn = document.getElementById('fetch-users');
+
+        const list = () => {
+            fetchUsers().then((users) => {
+                tbody.innerHTML = users.map(user => {
+                    return `
+                <tr>
+                    <td><img src="${user.photo}" alt="photo" width="40"></td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.tel}</td>
+                    <td>${user.gender === 'female' ? '👩' : '👨'}</td>
+                </tr>`
+                }).join('')
+            })
+        }
+
+        btn.addEventListener('click', list);
+        async function fetchUsers() {
+            try {
+                const response = await fetch("https://randomuser.me/api/?results=20");
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                return data.results.map((user) => ({
+                    name: `${user.name.first} ${user.name.last}`,
+                    email: user.email,
+                    tel: user.phone,
+                    age: user.dob.age,
+                    gender: user.gender,
+                    photo: user.picture.thumbnail
+                }));
+            } catch (error) {
+                console.error(error.message);
+                return [];
+            }
+        }
     </script>
+
 </body>
 
 </html>
