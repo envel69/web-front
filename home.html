@@ -15,6 +15,9 @@
             <h1>Vanilla JS Example</h1>
             <hr>
             <button id="fetch-users">Fetch Users</button>
+            <button id="filter-female">Gender 🙆‍♀️</button>
+            <button id="filter-man">Gender 🙅‍♂️</button>
+            <input type="text" id="Input" onkeyup="searchUsers()" placeholder="...">
         </div>
         <table id="tbl-users">
             <thead>
@@ -24,6 +27,7 @@
                     <th>Email</th>
                     <th>Tel</th>
                     <th>Genre</th>
+                    <th>Age</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,6 +47,9 @@
 
         const tbody = document.querySelector('#tbl-users tbody');
         const btn = document.getElementById('fetch-users');
+        const gdrf = document.getElementById('filter-female')
+        const gdrm = document.getElementById('filter-man')
+        const response = 'https://randomuser.me/api/?results=20'
 
         const list = () => {
             fetchUsers().then((users) => {
@@ -53,13 +60,15 @@
                     <td>${user.name}</td>
                     <td>${user.email}</td>
                     <td>${user.tel}</td>
-                    <td>${user.gender === 'female' ? '👩' : '👨'}</td>
+                    <td>${user.gender === 'female' ? '🙆‍♀️' : '🙅‍♂️'}</td>
+                    <td>${user.age}</td>
                 </tr>`
                 }).join('')
             })
         }
 
         btn.addEventListener('click', list);
+
         async function fetchUsers() {
             try {
                 const response = await fetch("https://randomuser.me/api/?results=20");
@@ -78,9 +87,54 @@
                 }));
             } catch (error) {
                 console.error(error.message);
-                return [];
             }
         }
+
+        gdrf.addEventListener('click', genderFilterfemale);
+        function genderFilterfemale() {
+            fetchUsers().then((users) => {
+                const femaleUsers = users.filter(user => user.gender === 'female');
+                tbody.innerHTML = femaleUsers.map(user => {
+                    return `
+            <tr>
+                <td><img src="${user.photo}" alt="photo" width="40"></td>
+                <td>${user.name}</td>
+                <td>${user.email}</td>
+                <td>${user.tel}</td>
+                <td>🙆‍♀️</td>
+                <td>${user.age}</td>
+            </tr>`
+                }).join('');
+            });
+        }
+        gdrm.addEventListener('click', genderFilterman);
+        function genderFilterman() {
+            fetchUsers().then((users) => {
+                const manUsers = users.filter(user => user.gender != 'female');
+                tbody.innerHTML = manUsers.map(user => {
+                    return `
+                    <tr>
+                <td><img src="${user.photo}" alt="photo" width="40"></td>
+                <td>${user.name}</td>
+                <td>${user.email}</td>
+                <td>${user.tel}</td>
+                <td>🙅‍♂️</td>
+                <td>${user.age}</td>
+            </tr>`
+                }).join('');
+            })
+        }
+
+
+        // function searchUsers() {
+        //     input = document.getElementById('Input');
+        //     filter = input.value.toUpperCase();
+        //     response = document.getElementById('fetch-users');
+        //     name = document.getElementsByName('${user.name}');
+        // }
+
+
+
     </script>
 
 </body>
