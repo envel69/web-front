@@ -15,9 +15,13 @@
             <h1>Vanilla JS Example</h1>
             <hr>
             <button id="fetch-users">Fetch Users</button>
-            <button id="filter-female">Gender 🙆‍♀️</button>
-            <button id="filter-man">Gender 🙅‍♂️</button>
-            <input type="text" id="Input" onkeyup="searchUsers()" placeholder="...">
+            <select id="gender-filter">
+                <option value="">Choose...</option>
+                <option value="female">Gender 🙆‍♀️</option>
+                <option value="male">Gender 🙅‍♂️</option>
+            </select>
+            <!-- <button id="filter-age">Age</button> -->
+            <input type="text" id="Input" onkeyup="searchUsers()" placeholder="Search users...">
         </div>
         <table id="tbl-users">
             <thead>
@@ -27,7 +31,8 @@
                     <th>Email</th>
                     <th>Tel</th>
                     <th>Genre</th>
-                    <th>Age</th>
+                    <th id="th-age" style="cursor:pointer">Age</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -47,8 +52,9 @@
 
         const tbody = document.querySelector('#tbl-users tbody');
         const btn = document.getElementById('fetch-users');
-        const gdrf = document.getElementById('filter-female')
-        const gdrm = document.getElementById('filter-man')
+        const gdrf = document.getElementById('gender-filter')
+        const age = document.getElementById('th-age');
+
         const response = 'https://randomuser.me/api/?results=20'
 
         const list = () => {
@@ -90,48 +96,46 @@
             }
         }
 
-        gdrf.addEventListener('click', genderFilterfemale);
-        function genderFilterfemale() {
-            fetchUsers().then((users) => {
-                const femaleUsers = users.filter(user => user.gender === 'female');
-                tbody.innerHTML = femaleUsers.map(user => {
-                    return `
+
+        gdrf.addEventListener('change', genderFilter);
+        function genderFilter() {
+            fetchUsers().then(users => {
+                const value = this.value;
+                let filter = users;
+                if (value === 'female') {
+                    filter = users.filter(user => user.gender === 'female');
+                } else if (value === 'male') {
+                    filter = users.filter(user => user.gender === 'male');
+                }
+                tbody.innerHTML = filter.map(user => `
             <tr>
                 <td><img src="${user.photo}" alt="photo" width="40"></td>
                 <td>${user.name}</td>
                 <td>${user.email}</td>
                 <td>${user.tel}</td>
-                <td>🙆‍♀️</td>
+                <td>${user.gender === 'female' ? '🙆‍♀️' : '🙅‍♂️'}</td>
                 <td>${user.age}</td>
-            </tr>`
+            </tr>
+        `).join('');
+            });
+        }
+        age.addEventListener('click', ageFilter);
+        function ageFilter() {
+            fetchUsers().then((users) => {
+                const sortUsers = users.sort((a, b) => a.age - b.age);
+                tbody.innerHTML = sortUsers.map(user => {
+                    return `
+                <tr>
+                    <td><img src="${user.photo}" alt="photo" width="40"></td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.tel}</td>
+                    <td>${user.gender === 'female' ? '🙆‍♀️' : '🙅‍♂️'}</td>
+                    <td>${user.age}</td>
+                </tr>`
                 }).join('');
             });
         }
-        gdrm.addEventListener('click', genderFilterman);
-        function genderFilterman() {
-            fetchUsers().then((users) => {
-                const manUsers = users.filter(user => user.gender != 'female');
-                tbody.innerHTML = manUsers.map(user => {
-                    return `
-                    <tr>
-                <td><img src="${user.photo}" alt="photo" width="40"></td>
-                <td>${user.name}</td>
-                <td>${user.email}</td>
-                <td>${user.tel}</td>
-                <td>🙅‍♂️</td>
-                <td>${user.age}</td>
-            </tr>`
-                }).join('');
-            })
-        }
-
-
-        // function searchUsers() {
-        //     input = document.getElementById('Input');
-        //     filter = input.value.toUpperCase();
-        //     response = document.getElementById('fetch-users');
-        //     name = document.getElementsByName('${user.name}');
-        // }
 
 
 
